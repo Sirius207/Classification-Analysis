@@ -15,6 +15,9 @@ class Tree:
 
         return self.children[-1]
 
+#
+# Part 1: Rules Generation
+#
 
 def generate_random_tree(level, max_degree, is_full_degree=False):
     def grow(current_node, current_level, final_level, max_degree):
@@ -106,7 +109,7 @@ def write_data_file(data_list):
             head += ',' + new_value
     head += ',' + 'y'
 
-    with open('output.csv', 'w') as output:
+    with open('training.csv', 'w') as output:
         output.write(head + '\n')
         for data in data_list:
             output.write(data + '\n')
@@ -118,7 +121,7 @@ def write_data_file(data_list):
 options = {
     'x_columns': 2,
     'choices': 2,
-    'data_length': 5,
+    'data_length': 50,
     'fake_columns': 3
 }
 
