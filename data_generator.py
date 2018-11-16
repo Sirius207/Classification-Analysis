@@ -67,7 +67,10 @@ def get_label(data, rules):
     features = data.split(',')
     sub_choice = rules
     for feature in features:
-        sub_choice = sub_choice[int(feature)]
+        if isinstance(sub_choice, list):
+            sub_choice = sub_choice[int(feature)]
+        else:
+            break
 
     return sub_choice
 
@@ -76,7 +79,8 @@ def get_random_data(options, rules):
     for data_id in range(options['data_length']):
         new_data = ''
         # create feature values
-        for column_id in range(options['x_columns']):
+        column_size = options['x_columns'] + options['fake_columns']
+        for column_id in range(column_size):
             new_value = str(random.randint(0, options['choices']-1))
             if (len(new_data) == 0):
                 new_data += new_value
@@ -93,12 +97,14 @@ def get_random_data(options, rules):
 
 def write_data_file(data_list):
     head = ''
-    for id, num in enumerate(data_list[0].split(',')):
+    x_column_size = len(data_list[0].split(',')) - 1
+    for id in range(x_column_size):
         new_value = 'F' + str(id)
         if (len(head) == 0):
             head += new_value
         else:
             head += ',' + new_value
+    head += ',' + 'y'
 
     with open('output.csv', 'w') as output:
         output.write(head + '\n')
@@ -112,7 +118,8 @@ def write_data_file(data_list):
 options = {
     'x_columns': 2,
     'choices': 2,
-    'data_length': 5
+    'data_length': 5,
+    'fake_columns': 3
 }
 
 root = generate_random_tree(options['x_columns'] + 1, options['choices'], True)
