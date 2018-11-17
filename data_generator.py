@@ -1,4 +1,10 @@
 import random
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.INFO)
+
 
 class Tree:
     def __init__(self, feature):
@@ -79,10 +85,10 @@ def get_label(data, rules):
 
 def get_random_data(options, rules):
     data_list = []
-    for data_id in range(options['data_length']):
+    for data_id in range(options['data_len']):
         new_data = ''
         # create feature values
-        column_size = options['x_columns'] + options['fake_columns']
+        column_size = options['real_columns'] + options['fake_columns']
         for column_id in range(column_size):
             new_value = str(random.randint(0, options['choices']-1))
             if (len(new_data) == 0):
@@ -115,20 +121,67 @@ def write_data_file(data_list):
             output.write(data + '\n')
 
 #
+# Check Data Condition
+#
+
+def check_population_percent(data_list, options):
+    population = {}
+    for data in data_list:
+        feature_end_index = options['real_columns'] * 2 - 1
+        feature_value = data[0:feature_end_index]
+        if feature_value not in population:
+            population[feature_value] = 1
+        else:
+            population[feature_value] + 1
+
+    real_population_len = options['choices']**(options['real_columns'])
+    data_population_len = len(population)
+    population_percent = data_population_len/real_population_len
+
+    logger.info(f'Data_population_len: {data_population_len}')
+    logger.info(f'Real_population_len: {real_population_len}')
+    logger.info(f'Population_percent: {population_percent}')
+    logger.info(f'Data length: {options["data_len"]}')
+
+#
 # Part 3: Main
 #
 
-options = {
-    'x_columns': 2,
-    'choices': 2,
-    'data_length': 50,
-    'fake_columns': 3
-}
 
-root = generate_random_tree(options['x_columns'] + 1, options['choices'], True)
-rules = tree_to_list(root)
+def main (options):
 
-print(rules)
+    root = generate_random_tree(options['real_columns'] + 1, options['choices'], True)
+    rules = tree_to_list(root)
 
-data = get_random_data(options, rules)
-write_data_file(data)
+    print(rules)
+
+    data_list = get_random_data(options, rules)
+    check_population_percent(data_list, options)
+    write_data_file(data_list)
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--real_columns',
+                       default=3,
+                       help='input real column number')
+    parser.add_argument('--fake_columns',
+                        default=3,
+                        help='input fake column number')
+    parser.add_argument('--choices',
+                       default=5,
+                       help='input column max choices')
+    parser.add_argument('--data_len',
+                       default=500,
+                       help='input length of data')
+    args = parser.parse_args()
+
+    options = {
+        'real_columns': args.real_columns,
+        'fake_columns': args.fake_columns,
+        'choices': args.choices,
+        'data_len': args.data_len,
+    }
+
+    main(options)
