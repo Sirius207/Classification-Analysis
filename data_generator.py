@@ -66,8 +66,8 @@ def tree_to_list(tree):
     traversal(tree, tree_list)
     return tree_list
 
-def write_rules_file(rules):
-    with open('data/rules.json', 'w') as output:
+def write_rules_file(rules, file_path):
+    with open(file_path + 'rules.json', 'w') as output:
         output.write(str(rules))
 
 #
@@ -111,7 +111,7 @@ def get_random_data(options, rules):
     logger.info(f'Data Length: {options["data_len"]}')
     return data_list
 
-def write_data_file(data_list):
+def write_data_file(data_list, file_path):
     head = ''
     x_column_size = len(data_list[0].split(',')) - 1
     for id in range(x_column_size):
@@ -122,7 +122,7 @@ def write_data_file(data_list):
             head += ',' + new_value
     head += ',' + 'y'
 
-    with open('data/training.csv', 'w') as output:
+    with open(file_path + 'training.csv', 'w') as output:
         output.write(head + '\n')
         for data in data_list:
             output.write(data + '\n')
@@ -161,21 +161,30 @@ def check_population_percent(data_list, options):
     logger.info(f'Population_percent: {population_percent}')
     logger.info(f'Data length: {options["data_len"]}')
 
+    return percent_trend
+
+def write_trend_file(trend, file_path):
+    with open(file_path + 'trend.json', 'w') as output:
+        output.write(str(trend))
+
 #
 # Part 3: Main Function
 #
 
 def main (options):
+    file_path = 'data/r{}_f{}_c{}/'.format(options['real_columns'], options["fake_columns"], options['choices'])
 
     # rules generation
     root = generate_random_tree(options['real_columns'] + 1, options['choices'], True)
     rules = tree_to_list(root)
-    write_rules_file(rules)
+    write_rules_file(rules, file_path)
 
     # data generation
     data_list = get_random_data(options, rules)
-    check_population_percent(data_list, options)
-    write_data_file(data_list)
+    percent_trend = check_population_percent(data_list, options)
+
+    write_trend_file(percent_trend, file_path)
+    write_data_file(data_list, file_path)
 
 
 if __name__ == '__main__':
@@ -185,7 +194,7 @@ if __name__ == '__main__':
                        default=3,
                        help='input real column number')
     parser.add_argument('--fake_columns',
-                        default=3,
+                        default=9,
                         help='input fake column number')
     parser.add_argument('--choices',
                        default=5,
