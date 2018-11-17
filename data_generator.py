@@ -66,6 +66,9 @@ def tree_to_list(tree):
     traversal(tree, tree_list)
     return tree_list
 
+def write_rules_file(rules):
+    with open('data/rules.json', 'w') as output:
+        output.write(str(rules))
 
 #
 # Part 2: Data Generation
@@ -101,6 +104,11 @@ def get_random_data(options, rules):
             new_data +=  ',' + label
 
         data_list.append(new_data)
+
+    logger.info(f'Real_columns: {options["real_columns"]}')
+    logger.info(f'Fake_columns: {options["fake_columns"]}')
+    logger.info(f'Choices: {options["choices"]}')
+    logger.info(f'Data Length: {options["data_len"]}')
     return data_list
 
 def write_data_file(data_list):
@@ -114,7 +122,7 @@ def write_data_file(data_list):
             head += ',' + new_value
     head += ',' + 'y'
 
-    with open('training.csv', 'w') as output:
+    with open('data/training.csv', 'w') as output:
         output.write(head + '\n')
         for data in data_list:
             output.write(data + '\n')
@@ -126,7 +134,7 @@ def write_data_file(data_list):
 def check_population_percent(data_list, options):
     # calculate population number
     population = {}
-    percent_trend = []
+    percent_trend = {}
     ten_percent_data_len = int(len(data_list)/10)
     real_population_len = options['choices']**(options['real_columns'])
 
@@ -141,7 +149,8 @@ def check_population_percent(data_list, options):
         # calculate percent of population per 10% data
         if id % ten_percent_data_len == 0 and id > 1:
             current_percent = len(population)/real_population_len
-            percent_trend.append(current_percent)
+            current_index = int(id / ten_percent_data_len) * 10
+            percent_trend[current_index] = current_percent
 
     data_population_len = len(population)
     population_percent = data_population_len/real_population_len
@@ -158,11 +167,12 @@ def check_population_percent(data_list, options):
 
 def main (options):
 
+    # rules generation
     root = generate_random_tree(options['real_columns'] + 1, options['choices'], True)
     rules = tree_to_list(root)
+    write_rules_file(rules)
 
-    print(rules)
-
+    # data generation
     data_list = get_random_data(options, rules)
     check_population_percent(data_list, options)
     write_data_file(data_list)
@@ -181,7 +191,7 @@ if __name__ == '__main__':
                        default=5,
                        help='input column max choices')
     parser.add_argument('--data_len',
-                       default=500,
+                       default=1000,
                        help='input length of data')
     args = parser.parse_args()
 
