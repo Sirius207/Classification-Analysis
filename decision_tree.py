@@ -9,9 +9,12 @@ logger.setLevel(level=logging.INFO)
 
 
 # Constants
+data_config = [
+    'r3_f3_c5',
+    'r3_f6_c5',
+    'r3_f9_c5'
+]
 training_propotion_list = [0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-
-data = pd.read_csv('data/training.csv')
 
 
 def calculate_acc(data, training_propotion):
@@ -38,7 +41,31 @@ def calculate_acc(data, training_propotion):
 
 
 def iterate_each_training_propotion(data):
+    acc_list = []
     for propotion in training_propotion_list:
-        calculate_acc(data, propotion)
+        acc_list.append(calculate_acc(data, propotion))
+    return acc_list
 
-iterate_each_training_propotion(data)
+
+def iterate_each_training_data(data_config):
+    transaction_list = []
+    for data_path in data_config:
+        logger.info(f'Training Data: {data_path} ----------------')
+        data = pd.read_csv('data/' + data_path + '/training.csv')
+        acc_list = iterate_each_training_propotion(data)
+        transcation = data_path + ',' + ','.join(str(acc) for acc in acc_list)
+        transaction_list.append(transcation)
+    return transaction_list
+
+
+def write_acc_results(transaction_list):
+    with open('data/results.csv', 'w') as output:
+        head = 'type,' + ','.join(str(p) for p in training_propotion_list) + '\n'
+        output.write(head)
+
+        for transaction in transaction_list:
+            output.write(transaction + '\n')
+
+
+transaction_list = iterate_each_training_data(data_config)
+write_acc_results(transaction_list)
