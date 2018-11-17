@@ -71,7 +71,6 @@ def tree_to_list(tree):
 # Part 2: Data Generation
 #
 
-
 def get_label(data, rules):
     features = data.split(',')
     sub_choice = rules
@@ -125,8 +124,13 @@ def write_data_file(data_list):
 #
 
 def check_population_percent(data_list, options):
+    # calculate population number
     population = {}
-    for data in data_list:
+    percent_trend = []
+    ten_percent_data_len = int(len(data_list)/10)
+    real_population_len = options['choices']**(options['real_columns'])
+
+    for id, data in enumerate(data_list):
         feature_end_index = options['real_columns'] * 2 - 1
         feature_value = data[0:feature_end_index]
         if feature_value not in population:
@@ -134,19 +138,23 @@ def check_population_percent(data_list, options):
         else:
             population[feature_value] + 1
 
-    real_population_len = options['choices']**(options['real_columns'])
+        # calculate percent of population per 10% data
+        if id % ten_percent_data_len == 0 and id > 1:
+            current_percent = len(population)/real_population_len
+            percent_trend.append(current_percent)
+
     data_population_len = len(population)
     population_percent = data_population_len/real_population_len
 
+    logger.info(f'Data_population_trend: {percent_trend}')
     logger.info(f'Data_population_len: {data_population_len}')
     logger.info(f'Real_population_len: {real_population_len}')
     logger.info(f'Population_percent: {population_percent}')
     logger.info(f'Data length: {options["data_len"]}')
 
 #
-# Part 3: Main
+# Part 3: Main Function
 #
-
 
 def main (options):
 
