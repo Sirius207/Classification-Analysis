@@ -135,7 +135,7 @@ def check_population_percent(data_list, options):
     # calculate population number
     population = {}
     percent_trend = {}
-    ten_percent_data_len = int(len(data_list)/10)
+    five_percent_data_len = int(len(data_list)/20)
     real_population_len = options['choices']**(options['real_columns'])
 
     for id, data in enumerate(data_list):
@@ -147,9 +147,9 @@ def check_population_percent(data_list, options):
             population[feature_value] + 1
 
         # calculate percent of population per 10% data
-        if id % ten_percent_data_len == 0 and id > 1:
+        if id % five_percent_data_len == 0 and id > 1:
             current_percent = len(population)/real_population_len
-            current_index = int(id / ten_percent_data_len) * 10
+            current_index = int(id / five_percent_data_len) * 5
             percent_trend[current_index] = current_percent
 
     data_population_len = len(population)
@@ -194,13 +194,13 @@ if __name__ == '__main__':
                        default=3,
                        help='input real column number')
     parser.add_argument('--fake_columns',
-                        default=9,
+                        default=3,
                         help='input fake column number')
     parser.add_argument('--choices',
                        default=5,
                        help='input column max choices')
     parser.add_argument('--data_len',
-                       default=1000,
+                       default=2000,
                        help='input length of data')
     args = parser.parse_args()
 
