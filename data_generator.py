@@ -205,10 +205,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     options = {
-        'real_columns': args.real_columns,
-        'fake_columns': args.fake_columns,
-        'choices': args.choices,
-        'data_len': args.data_len,
+        'real_columns': int(args.real_columns),
+        'fake_columns': int(args.fake_columns),
+        'choices': int(args.choices),
+        'data_len': int(args.data_len),
     }
 
     main(options)
